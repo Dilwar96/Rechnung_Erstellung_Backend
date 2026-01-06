@@ -24,7 +24,7 @@ Technologie-Stack
 
 Backend für die Rechnungserstellung (Express + MongoDB). Dieses Repository stellt eine REST‑API bereit, verwaltet Firmen‑ und Admin‑Daten und bietet CRUD‑Operationen für Rechnungen.
 
-Kurzüberblick (Refactor)
+Kurzüberblick
 - Die Implementierung ist in schlanke Routen und Controller aufgeteilt:
 	- Routen: `server/routes/*` — definieren Endpunkte
 	- Controller: `server/controllers/*` — enthalten DB‑ und Business‑Logik
@@ -77,8 +77,6 @@ Run & Deploy
 - Prod: `npm start`
 - Env: setze `MONGODB_URI` und `JWT_SECRET` in `server/config.env` oder als Umgebungsvariablen
 
-Entfernte/verschobene Funktionalität
-- Der serverseitige E‑Mail/PDF‑Versand wurde entfernt. PDF‑Erzeugung und Versand laufen clientseitig/extern — es existiert kein serverseitiger `nodemailer`/`pdfkit`‑Flow mehr im Projekt.
 
 Fehlerbehebung & Hinweise
 - Beim Start gibt `node server.js` Informationen zur DB‑Verbindung und dem Port aus. Falls Verbindungsfehler auftreten, prüfe `MONGODB_URI` in `server/config.env`.
