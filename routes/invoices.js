@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const invoicesController = require('../controllers/invoicesController');
+const authMiddleware = require('../middleware/auth');
+
+// All invoice routes require authentication
+router.use(authMiddleware);
 
 // Get all invoices
 router.get('/', invoicesController.getAll);
@@ -16,8 +20,5 @@ router.put('/:id', invoicesController.update);
 
 // Delete invoice
 router.delete('/:id', invoicesController.remove);
-
-// NOTE: PDF-per-email feature removed. If needed later, reintroduce with a
-// dedicated service and configuration for SMTP and PDF generation.
 
 module.exports = router; 

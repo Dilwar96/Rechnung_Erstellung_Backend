@@ -17,11 +17,6 @@ app.use('/api/company', require('./routes/company'));
 app.use('/api/invoices', require('./routes/invoices'));
 app.use('/api/admin', require('./routes/admin'));
 
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.json({ message: 'Server is running' });
-});
-
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
