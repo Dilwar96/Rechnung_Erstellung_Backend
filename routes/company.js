@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import * as companyController from '../controllers/companyController.js';
+import authMiddleware from '../middleware/auth.js';
+
 const router = express.Router();
-const companyController = require('../controllers/companyController');
-const authMiddleware = require('../middleware/auth');
 
 // All company routes require authentication
 router.use(authMiddleware);
@@ -9,4 +10,4 @@ router.use(authMiddleware);
 router.get('/', companyController.getCompany);
 router.put('/', companyController.updateCompany);
 
-module.exports = router;
+export default router;

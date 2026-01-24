@@ -1,9 +1,11 @@
-const mongoose = require('mongoose');
-require('dotenv').config({ path: './config.env' });
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: './config.env' });
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/invoices", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -15,4 +17,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB; 
+export default connectDB; 

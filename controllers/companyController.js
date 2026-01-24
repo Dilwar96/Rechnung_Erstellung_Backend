@@ -1,31 +1,45 @@
-const Company = require('../models/Company');
+import Company from '../models/Company.js';
 
-exports.getCompany = async (req, res) => {
+/**
+ * Holt die Firmendaten aus der Datenbank
+ * Erstellt automatisch eine neue Firma mit Standardwerten, falls keine existiert
+ * @route GET /api/company
+ */
+export const getCompany = async (req, res) => {
   try {
     let company = await Company.findOne();
+    // Erstelle neue Firma mit Standardwerten falls noch keine existiert
     if (!company) {
       company = new Company();
       await company.save();
     }
     res.json(company);
   } catch (error) {
-    console.error('Error fetching company:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Fehler beim Abrufen der Firma:', error);
+    res.status(500).json({ message: 'Serverfehler' });
   }
 };
 
-exports.updateCompany = async (req, res) => {
+/**
+ * Aktualisiert die Firmendaten
+ * Erstellt neue Firma falls noch keine existiert, sonst aktualisiert bestehende
+ * @route PUT /api/company
+ * @param {Object} req.body - Die aktualisierten Firmendaten (name, address, phone, etc.)
+ */
+export const updateCompany = async (req, res) => {
   try {
     let company = await Company.findOne();
+    // Neue Firma erstellen oder bestehende aktualisieren
     if (!company) {
       company = new Company(req.body);
     } else {
+      // Alle Felder aus req.body in company übernehmen
       Object.assign(company, req.body);
     }
     await company.save();
     res.json(company);
   } catch (error) {
-    console.error('Error updating company:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Fehler beim Aktualisieren der Firma:', error);
+    res.status(500).json({ message: 'Serverfehler' });
   }
 };

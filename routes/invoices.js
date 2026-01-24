@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import * as invoicesController from '../controllers/invoicesController.js';
+import authMiddleware from '../middleware/auth.js';
+
 const router = express.Router();
-const invoicesController = require('../controllers/invoicesController');
-const authMiddleware = require('../middleware/auth');
 
 // All invoice routes require authentication
 router.use(authMiddleware);
@@ -21,4 +22,4 @@ router.put('/:id', invoicesController.update);
 // Delete invoice
 router.delete('/:id', invoicesController.remove);
 
-module.exports = router; 
+export default router; 

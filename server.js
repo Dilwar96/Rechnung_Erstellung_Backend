@@ -1,7 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./config/db');
-require('dotenv').config({ path: './config.env' });
+import express from 'express';
+import cors from 'cors';
+import connectDB from './config/db.js';
+import dotenv from 'dotenv';
+import companyRouter from './routes/company.js';
+import invoicesRouter from './routes/invoices.js';
+import adminRouter from './routes/admin.js';
+
+dotenv.config({ path: './config.env' });
 
 const app = express();
 
@@ -13,9 +18,9 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
 // Routes
-app.use('/api/company', require('./routes/company'));
-app.use('/api/invoices', require('./routes/invoices'));
-app.use('/api/admin', require('./routes/admin'));
+app.use('/api/company', companyRouter);
+app.use('/api/invoices', invoicesRouter);
+app.use('/api/admin', adminRouter);
 
 const PORT = process.env.PORT || 5000;
 
