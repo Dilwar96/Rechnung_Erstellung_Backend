@@ -1,6 +1,6 @@
-import Admin from '../models/Admin.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import Admin from "../models/Admin.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 /**
  * Admin-Login mit Benutzername und Passwort
@@ -14,17 +14,27 @@ export const login = async (req, res) => {
   try {
     // Admin in Datenbank suchen
     const admin = await Admin.findOne({ username });
-    if (!admin) return res.status(401).json({ message: 'Ungültiger Benutzername oder Passwort' });
-    
-    // Passwort prüfen
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) return res.status(401).json({ message: 'Ungültiger Benutzername oder Passwort' });
-    
+    if (!admin)
+      return res
+        .status(401)
+        .json({ message: "Ungültiger Benutzername oder Passwort" });
+
+    // Passwort prüfen mit Model-Methode
+    const isMatch = await admin.comparePassword(password);
+    if (!isMatch)
+      return res
+        .status(401)
+        .json({ message: "Ungültiger Benutzername oder Passwort" });
+
     // JWT-Token erstellen (Gültig für 1 Tag)
-    const token = jwt.sign({ id: admin._id, username: admin.username }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(
+      { id: admin._id, username: admin.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
     res.json({ token, username: admin.username });
   } catch (error) {
-    res.status(500).json({ message: 'Serverfehler', error: error.message });
+    res.status(500).json({ message: "Serverfehler", error: error.message });
   }
 };
 
@@ -40,23 +50,25 @@ export const changeCredentials = async (req, res) => {
   try {
     // Admin aus Datenbank abrufen (ID kommt vom Auth-Token)
     const admin = await Admin.findById(req.user.id);
-    if (!admin) return res.status(404).json({ message: 'Admin nicht gefunden' });
-    
+    if (!admin)
+      return res.status(404).json({ message: "Admin nicht gefunden" });
+
     const { oldPassword, newUsername, newPassword } = req.body;
-    
-    // Altes Passwort verifizieren
-    const isMatch = await bcrypt.compare(oldPassword, admin.password);
-    if (!isMatch) return res.status(401).json({ message: 'Altes Passwort ist falsch' });
-    
+
+    // Altes Passwort verifizieren mit Model-Methode
+    const isMatch = await admin.comparePassword(oldPassword);
+    if (!isMatch)
+      return res.status(401).json({ message: "Altes Passwort ist falsch" });
+
     // Benutzername aktualisieren falls angegeben
     if (newUsername) admin.username = newUsername;
-    
-    // Neues Passwort hashen und speichern falls angegeben
-    if (newPassword) admin.password = await bcrypt.hash(newPassword, 10);
-    
+
+    // Neues Passwort setzen (wird automatisch durch Pre-save Hook gehasht)
+    if (newPassword) admin.password = newPassword;
+
     await admin.save();
-    res.json({ message: 'Anmeldedaten aktualisiert' });
+    res.json({ message: "Anmeldedaten aktualisiert" });
   } catch (error) {
-    res.status(500).json({ message: 'Serverfehler', error: error.message });
+    res.status(500).json({ message: "Serverfehler", error: error.message });
   }
 };
