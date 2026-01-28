@@ -16,9 +16,6 @@ export default {
     "!**/node_modules/**",
   ],
 
-  // Setup-Dateien
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
-
   // Timeout für Tests erhöhen (DB-Operationen können länger dauern)
   testTimeout: 10000,
 
