@@ -1,11 +1,11 @@
-import Company from '../models/Company.js';
+import Company from "../models/Company.js";
 
 /**
  * Holt die Firmendaten aus der Datenbank
  * Erstellt automatisch eine neue Firma mit Standardwerten, falls keine existiert
  * @route GET /api/company
  */
-export const getCompany = async (req, res) => {
+export const getCompany = async (req, res, next) => {
   try {
     let company = await Company.findOne();
     // Erstelle neue Firma mit Standardwerten falls noch keine existiert
@@ -15,8 +15,7 @@ export const getCompany = async (req, res) => {
     }
     res.json(company);
   } catch (error) {
-    console.error('Fehler beim Abrufen der Firma:', error);
-    res.status(500).json({ message: 'Serverfehler' });
+    next(error);
   }
 };
 
@@ -26,7 +25,7 @@ export const getCompany = async (req, res) => {
  * @route PUT /api/company
  * @param {Object} req.body - Die aktualisierten Firmendaten (name, address, phone, etc.)
  */
-export const updateCompany = async (req, res) => {
+export const updateCompany = async (req, res, next) => {
   try {
     let company = await Company.findOne();
     // Neue Firma erstellen oder bestehende aktualisieren
@@ -39,7 +38,6 @@ export const updateCompany = async (req, res) => {
     await company.save();
     res.json(company);
   } catch (error) {
-    console.error('Fehler beim Aktualisieren der Firma:', error);
-    res.status(500).json({ message: 'Serverfehler' });
+    next(error);
   }
 };

@@ -1,121 +1,106 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const invoiceItemSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   quantity: {
     type: Number,
     required: true,
-    default: 1
+    default: 1,
   },
   price: {
     type: Number,
     required: true,
-    default: 0
+    default: 0,
   },
-  tax1: {
+  tax: {
     type: Number,
     required: true,
-    default: 19
+    default: 19,
   },
-  discount: {
-    type: Number,
-    required: true,
-    default: 0
-  },
-  tip: {
-    type: Number,
-    required: true,
-    default: 0
-  }
 });
 
 const customerSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   address: {
     type: String,
-    required: true
+    required: true,
   },
   city: {
     type: String,
-    required: true
+    required: true,
   },
   postalCode: {
     type: String,
-    required: true
+    required: true,
   },
   customField1: {
     type: String,
-    required: false
+    required: false,
   },
   customField2: {
     type: String,
-    required: false
-  }
+    required: false,
+  },
 });
 
-const invoiceSchema = new mongoose.Schema({
-  invoiceNumber: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  date: {
-    type: String,
-    required: true
-  },
-  deliveryDate: {
-    type: String,
-    required: false
-  },
-  company: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Company',
-    required: true
-  },
-  customer: {
-    type: customerSchema,
-    required: true
-  },
-  items: [invoiceItemSchema],
-  paymentMethod: {
-    type: String,
-    enum: ['card', 'cash'],
-    default: 'card'
-  },
-  currency: {
-    type: String,
-    default: 'EUR'
-  },
-  totals: {
-    subtotal: {
-      type: Number,
-      default: 0
+const invoiceSchema = new mongoose.Schema(
+  {
+    invoiceNumber: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    totalDiscount: {
-      type: Number,
-      default: 0
+    date: {
+      type: String,
+      required: true,
     },
-    totalTax1: {
-      type: Number,
-      default: 0
+    deliveryDate: {
+      type: String,
+      required: false,
     },
-    totalTip: {
-      type: Number,
-      default: 0
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
     },
-    total: {
-      type: Number,
-      default: 0
-    }
-  }
-}, {
-  timestamps: true
-});
+    customer: {
+      type: customerSchema,
+      required: true,
+    },
+    items: [invoiceItemSchema],
+    paymentMethod: {
+      type: String,
+      enum: ["card", "cash"],
+      default: "card",
+    },
+    currency: {
+      type: String,
+      default: "EUR",
+    },
+    totals: {
+      subtotal: {
+        type: Number,
+        default: 0,
+      },
+      totalTax: {
+        type: Number,
+        default: 0,
+      },
+      total: {
+        type: Number,
+        default: 0,
+      },
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-export default mongoose.model('Invoice', invoiceSchema); 
+export default mongoose.model("Invoice", invoiceSchema);

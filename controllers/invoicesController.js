@@ -1,5 +1,6 @@
-import Invoice from '../models/Invoice.js';
-import Company from '../models/Company.js';
+import Invoice from "../models/Invoice.js";
+import Company from "../models/Company.js";
+import AppError from "../utils/AppError.js";
 
 /**
  * Entfernt rekursiv alle _id-Felder aus einem Objekt oder Array
@@ -9,7 +10,7 @@ import Company from '../models/Company.js';
  */
 function removeId(obj) {
   if (Array.isArray(obj)) return obj.map(removeId);
-  if (obj && typeof obj === 'object') {
+  if (obj && typeof obj === "object") {
     const { _id, ...rest } = obj;
     for (const key in rest) {
       rest[key] = removeId(rest[key]);
@@ -24,14 +25,15 @@ function removeId(obj) {
  * Sortiert nach Erstellungsdatum (neueste zuerst)
  * @route GET /api/invoices
  */
-export const getAll = async (req, res) => {
+export const getAll = async (req, res, next) => {
   try {
     // Rechnungen abrufen und Company-Daten einbinden
-    const invoices = await Invoice.find().populate('company').sort({ createdAt: -1 });
+    const invoices = await Invoice.find()
+      .populate("company")
+      .sort({ createdAt: -1 });
     res.json(invoices);
   } catch (error) {
-    console.error('Fehler beim Abrufen der Rechnungen:', error);
-    res.status(500).json({ message: 'Serverfehler' });
+    next(error);
   }
 };
 
@@ -40,14 +42,13 @@ export const getAll = async (req, res) => {
  * @route GET /api/invoices/:id
  * @param {string} req.params.id - Die Rechnungs-ID
  */
-export const getById = async (req, res) => {
+export const getById = async (req, res, next) => {
   try {
-    const invoice = await Invoice.findById(req.params.id).populate('company');
-    if (!invoice) return res.status(404).json({ message: 'Rechnung nicht gefunden' });
+    const invoice = await Invoice.findById(req.params.id).populate("company");
+    if (!invoice) throw new AppError("Rechnung nicht gefunden", 404);
     res.json(invoice);
   } catch (error) {
-    console.error('Fehler beim Abrufen der Rechnung:', error);
-    res.status(500).json({ message: 'Serverfehler' });
+    next(error);
   }
 };
 
@@ -56,9 +57,18 @@ export const getById = async (req, res) => {
  * @route POST /api/invoices
  * @param {Object} req.body - Die Rechnungsdaten
  */
-export const create = async (req, res) => {
+export const create = async (req, res, next) => {
   try {
-    const { invoiceNumber, date, deliveryDate, customer, items, paymentMethod, currency, totals } = req.body;
+    const {
+      invoiceNumber,
+      date,
+      deliveryDate,
+      customer,
+      items,
+      paymentMethod,
+      currency,
+      totals,
+    } = req.body;
 
     // Entferne _id-Felder aus eingehenden Daten
     // Verhindert Konflikte mit MongoDB's automatischen IDs
@@ -83,22 +93,13 @@ export const create = async (req, res) => {
       items: cleanItems,
       paymentMethod,
       currency,
-      totals: cleanTotals
+      totals: cleanTotals,
     });
     await invoice.save();
-    await invoice.populate('company');
+    await invoice.populate("company");
     res.json(invoice);
   } catch (error) {
-    console.error('Fehler beim Erstellen der Rechnung:', error);
-    // Prüfe auf doppelte Rechnungsnummer
-    if (error.code === 11000 && error.keyPattern && error.keyPattern.invoiceNumber) {
-      return res.status(409).json({
-        message: 'Eine Rechnung mit dieser Rechnungsnummer existiert bereits.',
-        error: 'DUPLICATE_INVOICE_NUMBER',
-        invoiceNumber: req.body.invoiceNumber
-      });
-    }
-    res.status(500).json({ message: 'Serverfehler', error: error.message, code: error.code || undefined });
+    next(error);
   }
 };
 
@@ -108,15 +109,16 @@ export const create = async (req, res) => {
  * @param {string} req.params.id - Die Rechnungs-ID
  * @param {Object} req.body - Die aktualisierten Rechnungsdaten
  */
-export const update = async (req, res) => {
+export const update = async (req, res, next) => {
   try {
     // Aktualisiere Rechnung und gib die neue Version zurück
-    const invoice = await Invoice.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate('company');
-    if (!invoice) return res.status(404).json({ message: 'Rechnung nicht gefunden' });
+    const invoice = await Invoice.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    }).populate("company");
+    if (!invoice) throw new AppError("Rechnung nicht gefunden", 404);
     res.json(invoice);
   } catch (error) {
-    console.error('Fehler beim Aktualisieren der Rechnung:', error);
-    res.status(500).json({ message: 'Serverfehler' });
+    next(error);
   }
 };
 
@@ -125,13 +127,12 @@ export const update = async (req, res) => {
  * @route DELETE /api/invoices/:id
  * @param {string} req.params.id - Die Rechnungs-ID
  */
-export const remove = async (req, res) => {
+export const remove = async (req, res, next) => {
   try {
     const invoice = await Invoice.findByIdAndDelete(req.params.id);
-    if (!invoice) return res.status(404).json({ message: 'Rechnung nicht gefunden' });
-    res.json({ message: 'Rechnung erfolgreich gelöscht' });
+    if (!invoice) throw new AppError("Rechnung nicht gefunden", 404);
+    res.json({ message: "Rechnung erfolgreich gelöscht" });
   } catch (error) {
-    console.error('Fehler beim Löschen der Rechnung:', error);
-    res.status(500).json({ message: 'Serverfehler' });
+    next(error);
   }
 };
